@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
+    <title>Blog</title>
+</head>
+<body>
+    <div id="signup-container" style="display: none;">
+        <h1>Sign Up</h1>
+        <input id="signup-email" name="email" type="text" placeholder="email">
+        <input id="signup-password" name="password" type="password" placeholder="password">
+        <button onclick="signup()">submit</button>
+        <button onclick="moveToSignin()">Already have an account ? Sign In</button>
+    </div>
+    <div id="signin-container">
+        <h1>Sign In</h1>
+        <input id="signin-email" name="eamil" type="text" placeholder="eamil">
+        <input id="signin-password" name="password" type="password" placeholder="password">
+        <button onclick="signin()">submit</button>
+        <button onclick="moveToSignup()">Don't have an account ? Sign Up</button>
+    </div>
+    <div id="blog-container" style="display: none;">
+        <h1>blog list</h1>
+        <div>
+            <input id="headline" name="headline" type="text" placeholder="Add the headline">
+            <input id="discripation" name="discripation" type="text" placeholder="Add the discripation">
+            <button onclick="Addblog()">Add</button>
+        </div>
+        <div id="showblog"></div>
+         <h2>Your blogs</h2>
+        <div id="blogs-list"></div>
+        <button onclick="Logout()">Logout</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

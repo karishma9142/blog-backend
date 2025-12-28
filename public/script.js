@@ -50,79 +50,125 @@ async function signin() {
     }
 }
 
+// ---------------- ADD BLOG ----------------
 async function Addblog() {
-    const headline = document.getElementById("headline").value;
-    const discripation = document.getElementById("discripation").value;
-  
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/blog",
-        {
-          headline : headline,
-          discripation : discripation
+  const headline = document.getElementById("headline").value;
+  const discripation = document.getElementById("discripation").value;
+  const imageFile = document.getElementById("image").files[0];
+
+  if (!imageFile) {
+    alert("NO IMAGE SELECTED");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("headline", headline);
+  formData.append("discripation", discripation);
+  formData.append("image", imageFile); // 🔥 MUST BE "image"
+
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/blog",
+      formData,
+      {
+        headers: {
+          token: localStorage.getItem("token"),
         },
-        {
-          headers: { token: localStorage.getItem("token") }
-        }
-      );
-  
-      alert(response.data.msg);
-      await  ShowBlogs();
-    } catch (error) {
-      console.error("Error while adding blog:", error);
-      alert("Failed to add blog. Please try again.");
-    }
+      }
+    );
+
+    alert(res.data.msg);
+    ShowBlogs();
+  } catch (err) {
+    console.error(err);
+    alert("FAILED");
   }
-  async function ShowBlogs() {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/blogs",
-        {
-          headers: { token: localStorage.getItem("token") }
-        }
-      );
-  
-      console.log(response.data.blogs);
-  
-      const blogsList = document.getElementById("blogs-list");
-      blogsList.innerHTML = response.data.blogs.map(b =>
-        `<p>
-          <strong>${b.headline}</strong> - ${b.discripation}
-          <button onclick="update('${b._id}')">Update</button>
-          <button onclick="Delete('${b._id}')">Delete</button>
-        </p>`
-      ).join("");
-    } catch (error) {
-      console.error("Error while fetching blogs:", error);
-    }
+}
+
+
+// ---------------- SHOW BLOGS ----------------
+async function ShowBlogs() {
+  try {
+    const response = await axios.get(
+      "http://localhost:3000/blogs",
+      {
+        headers: { token: localStorage.getItem("token") },
+      }
+    );
+
+    const blogs = response.data.blogs;
+    const blogsList = document.getElementById("blogs-list");
+
+    blogsList.innerHTML = "";
+
+    blogs.forEach((b) => {
+      const div = document.createElement("div");
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "10px";
+      div.style.marginBottom = "10px";
+
+      div.innerHTML = `
+        <h3>${b.headline}</h3>
+        <p>${b.discripation}</p>
+
+        ${b.image ? `<img src="${b.image}" width="200" />` : ""}
+
+        <br/><br/>
+        <button onclick="updateBlog('${b._id}')">Update</button>
+        <button onclick="DeleteBlog('${b._id}')">Delete</button>
+      `;
+
+      blogsList.appendChild(div);
+    });
+  } catch (error) {
+    console.error("Fetch blogs error:", error);
   }
-  
-  function Delete(id) {
-    axios.delete("http://localhost:3000/delete", {
+}
+
+// ---------------- DELETE BLOG ----------------
+async function DeleteBlog(id) {
+  if (!confirm("Are you sure you want to delete this blog?")) return;
+
+  try {
+    await axios.delete("http://localhost:3000/delete", {
       headers: {
         token: localStorage.getItem("token"),
-        id: id
-      }
-    }).then(res => {
-      alert(res.data.msg);
-      ShowBlogs();
-    }).catch(err => console.error("Error deleting:", err));
+        id: id,
+      },
+    });
+
+    ShowBlogs();
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Failed to delete blog");
   }
-  
-  function update(id) {
-    const newheadline = prompt("Enter new headline:");
-    const newdiscripation = prompt("Enter new discripation:");
-    axios.put("http://localhost:3000/update", {
-      newheadline,
-      newdiscripation
-    }, {
-      headers: {
-        token: localStorage.getItem("token"),
-        id: id
+}
+
+// ---------------- UPDATE BLOG (TEXT ONLY) ----------------
+async function updateBlog(id) {
+  const newheadline = prompt("Enter new headline:");
+  const newdiscripation = prompt("Enter new description:");
+
+  if (!newheadline || !newdiscripation) return;
+
+  try {
+    await axios.put(
+      "http://localhost:3000/update",
+      {
+        newheadline,
+        newdiscripation,
+      },
+      {
+        headers: {
+          token: localStorage.getItem("token"),
+          id: id,
+        },
       }
-    }).then(res => {
-      alert(res.data.msg);
-      ShowBlogs();
-    }).catch(err => console.error("Error updating:", err));
+    );
+
+    ShowBlogs();
+  } catch (error) {
+    console.error("Update error:", error);
+    alert("Failed to update blog");
   }
-  
+}

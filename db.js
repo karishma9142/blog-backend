@@ -7,12 +7,19 @@ const user = new Schema({
     password : String
 });
 
-const blog = new Schema({
-    headline : String ,
-    discripation : String ,
-    userId : ObjectId
-});
-
+const blog = new mongoose.Schema(
+    {
+      headline: { type: String, required: true },
+      discripation: { type: String, required: true },
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  
+      image: {
+        type: String, 
+      },
+    },
+    { timestamps: true }
+  );
+  
 const UserModel = mongoose.model("users" ,user);
 const BlogModel = mongoose.model("blogs" , blog);
 
